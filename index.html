@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>Data Portal</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QoG Data Downloads Portal</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link rel="stylesheet" href="css/style.css">
+ 
+</head>
+
+<body>
+
+  <!-- This DIV is being used for testing purposes -->
+<div id="test"></div>
+<!-- Handlebars templates are here -->
+<div id="mytemplates">
+  <script id="std" type="text/x-handlebars-template">
+    <br> {{#each std}}
+    <div id="title">
+      <h3>{{dataname}}</h3>
+    </div>
+    <div id="vers1">
+      Version: <span id="ver1">{{version}}</span>
+    </div>
+    <div id="description">
+      <br> {{{description}}}
+    </div>
+    <div id="moredescription" class="mt-2 float-right">
+      <button class="col-md-12 text-right" id="moreinfo">More about this dataset</button>
+      <div id="moreinfo1" class="hideme" style="display: none;">{{{description_long}}}<br></div>
+      <br>
+    </div>
+    <div id="datatype" class="mt-5">
+      <br>
+      <p><b>Choose the type of dataset you would like to download:</b></p>
+      <form>
+        {{#each types}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+    </div>
+    <div id="versiontype" class="mt-3">
+      {{#if mversions}}
+      <p><b>Choose the version of dataset you would like to download:</b></p>
+      <form>
+        {{#each mversions}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+      {{/if}}
+    </div>
+    <div id="filetype" class="mt-2">
+      <p><b>Choose the type of file you would like your dataset in:</b></p>
+      <form id="type1">
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="dta" checked> DTA (Stata)</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="csv"> CSV</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="xlsx"> Excel</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="sav"> SAV (SPSS)</label>
+        </div>
+      </form>
+    </div>
+    <div id="cite1" class="mt-2">Cite this dataset using:
+      <br>
+      <div id="cite">
+        <i>{{ref}}</i>
+      </div>
+    </div>
+    <div id="somebuttons" class="text-center">
+      <div id="dbuttons" class="btn-group mt-3 flex-wrap" role="group">
+        <div class="column">
+          <a id="dldata" href="#" download>
+            <button type="button" id="ddata" class="dbutton" onclick="dwn_data()">Download Data</button> 
+         </a>
+        </div>
+        <div class="column">
+          <a id="dlcodebook" href="#" target="_blank" download>
+            <button type="button" id="dcodebook" class="dbutton" onclick="dwn_cb()">Download Codebook</button> 
+          </a>
+        </div>
+        <div class="column">
+          <button type="button" id="ccitation" class="dbutton" onclick="copy_ref('#cite')" data-toggle="modal" data-target="#exampleModal">Copy Reference</button>
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-body">
+                  Reference copied to clipboard.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" id="closingbutton" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="viztool" class="mt-3">
+      <div class="col d-flex justify-content-center">
+        {{#if apps}}
+        <br>
+        <div class="row">
+          {{#each apps}}
+          <!--Closes each for apps-->
+          <div class="vizcard">
+            <div class="card" style="width: 18rem;">
+              <img src="{{appimage}}" class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{appname}}</h5>
+                <p class="card-text">The dataset has this visualization tool, follow the link to interact with the data.</p>
+                <div class="text-center"><a href="{{applink}}" class="btn btn-primary btnapp">Go to app</a></div>
+              </div>
+            </div>
+          </div>
+          {{/each}}
+          <!--Closes each for apps-->
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    <div id="pub1" class="mt-3">
+      {{#if publications}}
+      <br>
+      <p>Related Publications:</p>
+      <ul>
+        {{#each publications}}
+        <li><a class="mylinks" href="{{publink}}">{{pubname}}</a></li>
+        <br> {{/each}}
+        <!-- this closes the each for publications -->
+      </ul>
+      {{/if}}
+    </div>
+    {{/each}}
+    <!-- This closes the overarching each -->
+  </script>
+  <script id="bas" type="text/x-handlebars-template">
+    <br> {{#each basic}}
+    <div id="title">
+      <h3>{{dataname}}</h3>
+    </div>
+    <div id="vers1">
+      Version: <span id="ver1">{{version}}</span>
+    </div>
+    <div id="description">
+      <br> {{{description}}}
+    </div>
+    <div id="moredescription" class="mt-2 float-right">
+      <button class="col-md-12 text-right" id="moreinfo">More about this dataset</button>
+      <div id="moreinfo1" class="hideme" style="display: none;">{{{description_long}}}<br></div>
+      <br>
+    </div>
+    <div id="datatype" class="mt-5">
+      <br>
+      <p><b>Choose the type of dataset you would like to download:</b></p>
+      <form>
+        {{#each types}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+    </div>
+    <div id="versiontype" class="mt-3">
+      {{#if mversions}}
+      <p><b>Choose the version of dataset you would like to download:</b></p>
+      <form>
+        {{#each mversions}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+      {{/if}}
+    </div>
+    <div id="filetype" class="mt-2">
+      <p><b>Choose the type of file you would like your dataset in:</b></p>
+      <form id="type1">
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="dta" checked> DTA (Stata)</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="csv"> CSV</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="xlsx"> Excel</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="sav"> SAV (SPSS)</label>
+        </div>
+      </form>
+    </div>
+    <div id="cite1" class="mt-2">Cite this dataset using:
+      <br>
+      <div id="cite">
+        <i>{{ref}}</i>
+      </div>
+    </div>
+    <div id="somebuttons" class="text-center">
+      <div id="dbuttons" class="btn-group mt-3 flex-wrap" role="group">
+        <div class="column">
+          <a id="dldata" href="#" download>
+            <button type="button" id="ddata" class="dbutton" onclick="dwn_data()">Download Data</button> 
+         </a>
+        </div>
+        <div class="column">
+          <a id="dlcodebook" href="#" target="_blank" download>
+            <button type="button" id="dcodebook" class="dbutton" onclick="dwn_cb()">Download Codebook</button> 
+          </a>
+        </div>
+        <div class="column">
+          <button type="button" id="ccitation" class="dbutton" onclick="copy_ref('#cite')" data-toggle="modal" data-target="#exampleModal">Copy Reference</button>
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-body">
+                  Reference copied to clipboard.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" id="closingbutton" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="viztool" class="mt-3">
+      <div class="col d-flex justify-content-center">
+        {{#if apps}}
+        <br>
+        <div class="row">
+          {{#each apps}}
+          <!--Closes each for apps-->
+          <div class="vizcard">
+            <div class="card" style="width: 18rem;">
+              <img src="{{appimage}}" class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{appname}}</h5>
+                <p class="card-text">The dataset has this visualization tool, follow the link to interact with the data.</p>
+                <div class="text-center"><a href="{{applink}}" class="btn btn-primary btnapp">Go to app</a></div>
+              </div>
+            </div>
+          </div>
+          {{/each}}
+          <!--Closes each for apps-->
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    <div id="pub1" class="mt-3">
+      {{#if publications}}
+      <br>
+      <p>Related Publications:</p>
+      <ul>
+        {{#each publications}}
+        <li><a class="mylinks" href="{{publink}}">{{pubname}}</a></li>
+        <br> {{/each}}
+        <!-- this closes the each for publications -->
+      </ul>
+      {{/if}}
+    </div>
+    {{/each}}
+    <!-- This closes the overarching each -->
+  </script>
+  <script id="oecd" type="text/x-handlebars-template">
+    <br> {{#each oecd}}
+    <div id="title">
+      <h3>{{dataname}}</h3>
+    </div>
+    <div id="vers1">
+      Version: <span id="ver1">{{version}}</span>
+    </div>
+    <div id="description">
+      <br> {{{description}}}
+    </div>
+    <div id="moredescription" class="mt-2 float-right">
+      <button class="col-md-12 text-right" id="moreinfo">More about this dataset</button>
+      <div id="moreinfo1" class="hideme" style="display: none;">{{{description_long}}}<br></div>
+      <br>
+    </div>
+    <div id="datatype" class="mt-5">
+      <br>
+      <p><b>Choose the type of dataset you would like to download:</b></p>
+      <form>
+        {{#each types}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+    </div>
+    <div id="versiontype" class="mt-3">
+      {{#if mversions}}
+      <p><b>Choose the version of dataset you would like to download:</b></p>
+      <form>
+        {{#each mversions}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+      {{/if}}
+    </div>
+    <div id="filetype" class="mt-2">
+      <p><b>Choose the type of file you would like your dataset in:</b></p>
+      <form id="type1">
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="dta" checked> DTA (Stata)</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="csv"> CSV</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="xlsx"> Excel</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="sav"> SAV (SPSS)</label>
+        </div>
+      </form>
+    </div>
+    <div id="cite1" class="mt-2">Cite this dataset using:
+      <br>
+      <div id="cite">
+        <i>{{ref}}</i>
+      </div>
+    </div>
+    <div id="somebuttons" class="text-center">
+      <div id="dbuttons" class="btn-group mt-3 flex-wrap" role="group">
+        <div class="column">
+          <a id="dldata" href="#" download>
+            <button type="button" id="ddata" class="dbutton" onclick="dwn_data()">Download Data</button> 
+         </a>
+        </div>
+        <div class="column">
+          <a id="dlcodebook" href="#" target="_blank" download>
+            <button type="button" id="dcodebook" class="dbutton" onclick="dwn_cb()">Download Codebook</button> 
+          </a>
+        </div>
+        <div class="column">
+          <button type="button" id="ccitation" class="dbutton" onclick="copy_ref('#cite')" data-toggle="modal" data-target="#exampleModal">Copy Reference</button>
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-body">
+                  Reference copied to clipboard.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" id="closingbutton" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="viztool" class="mt-3">
+      <div class="col d-flex justify-content-center">
+        {{#if apps}}
+        <br>
+        <div class="row">
+          {{#each apps}}
+          <!--Closes each for apps-->
+          <div class="vizcard">
+            <div class="card" style="width: 18rem;">
+              <img src="{{appimage}}" class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{appname}}</h5>
+                <p class="card-text">The dataset has this visualization tool, follow the link to interact with the data.</p>
+                <div class="text-center"><a href="{{applink}}" class="btn btn-primary btnapp">Go to app</a></div>
+              </div>
+            </div>
+          </div>
+          {{/each}}
+          <!--Closes each for apps-->
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    <div id="pub1" class="mt-3">
+      {{#if publications}}
+      <br>
+      <p>Related Publications:</p>
+      <ul>
+        {{#each publications}}
+        <li><a class="mylinks" href="{{publink}}">{{pubname}}</a></li>
+        <br> {{/each}}
+        <!-- this closes the each for publications -->
+      </ul>
+      {{/if}}
+    </div>
+    {{/each}}
+    <!-- This closes the overarching each -->
+  </script>
+  <script id="eureg" type="text/x-handlebars-template">
+    <br> {{#each eureg}}
+    <div id="title">
+      <h3>{{dataname}}</h3>
+    </div>
+    <div id="vers1">
+      Version: <span id="ver1">{{version}}</span>
+    </div>
+    <div id="description">
+      <br> {{{description}}}
+    </div>
+    <div id="moredescription" class="mt-2 float-right">
+      <button class="col-md-12 text-right" id="moreinfo">More about this dataset</button>
+      <div id="moreinfo1" class="hideme" style="display: none;">{{{description_long}}}<br></div>
+      <br>
+    </div>
+    <div id="datatype" class="mt-5">
+      <br>
+      <p><b>Choose the type of dataset you would like to download:</b></p>
+      <form>
+        {{#each types}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+    </div>
+    <div id="versiontype" class="mt-3">
+      {{#if mversions}}
+      <p><b>Choose the version of dataset you would like to download:</b></p>
+      <form>
+        {{#each mversions}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+      {{/if}}
+    </div>
+    <div id="filetype" class="mt-2">
+      <p><b>Choose the type of file you would like your dataset in:</b></p>
+      <form id="type1">
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="dta" checked> DTA (Stata)</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="csv"> CSV</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="xlsx"> Excel</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="sav"> SAV (SPSS)</label>
+        </div>
+      </form>
+    </div>
+    <div id="cite1" class="mt-2">Cite this dataset using:
+      <br>
+      <div id="cite">
+        <i>{{ref}}</i>
+      </div>
+    </div>
+    <div id="somebuttons" class="text-center">
+      <div id="dbuttons" class="btn-group mt-3 flex-wrap" role="group">
+        <div class="column">
+          <a id="dldata" href="#" download>
+            <button type="button" id="ddata" class="dbutton" onclick="dwn_data()">Download Data</button> 
+         </a>
+        </div>
+        <div class="column">
+          <a id="dlcodebook" href="#" target="_blank" download>
+            <button type="button" id="dcodebook" class="dbutton" onclick="dwn_cb()">Download Codebook</button> 
+          </a>
+        </div>
+        <div class="column">
+          <button type="button" id="ccitation" class="dbutton" onclick="copy_ref('#cite')" data-toggle="modal" data-target="#exampleModal">Copy Reference</button>
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-body">
+                  Reference copied to clipboard.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" id="closingbutton" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="viztool" class="mt-3">
+      <div class="col d-flex justify-content-center">
+        {{#if apps}}
+        <br>
+        <div class="row">
+          {{#each apps}}
+          <!--Closes each for apps-->
+          <div class="vizcard">
+            <div class="card" style="width: 18rem;">
+              <img src="{{appimage}}" class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{appname}}</h5>
+                <p class="card-text">The dataset has this visualization tool, follow the link to interact with the data.</p>
+                <div class="text-center"><a href="{{applink}}" class="btn btn-primary btnapp">Go to app</a></div>
+              </div>
+            </div>
+          </div>
+          {{/each}}
+          <!--Closes each for apps-->
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    <div id="pub1" class="mt-3">
+      {{#if publications}}
+      <br>
+      <p>Related Publications:</p>
+      <ul>
+        {{#each publications}}
+        <li><a class="mylinks" href="{{publink}}">{{pubname}}</a></li>
+        <br> {{/each}}
+        <!-- this closes the each for publications -->
+      </ul>
+      {{/if}}
+    </div> {{/each}}
+    <!-- This closes the overarching each -->
+  </script>
+  <script id="eqi" type="text/x-handlebars-template">
+    <br> {{#each eqi}}
+    <div id="title">
+      <h3>{{dataname}}</h3>
+    </div>
+    <div id="vers1">
+      Version: <span id="ver1">{{version}}</span>
+    </div>
+    <div id="description">
+      <br> {{{description}}}
+    </div>
+    <div id="moredescription" class="mt-2 float-right">
+      <button class="col-md-12 text-right" id="moreinfo">More about this dataset</button>
+      <div id="moreinfo1" class="hideme" style="display: none;">{{{description_long}}}<br></div>
+      <br>
+    </div>
+    <div id="datatype" class="mt-5">
+      <br>
+      <p><b>Choose the type of dataset you would like to download:</b></p>
+      <form>
+        {{#each types}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+    </div>
+    <div id="versiontype" class="mt-3">
+      {{#if mversions}}
+      <p><b>Choose the version of dataset you would like to download:</b></p>
+      <form>
+        {{#each mversions}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+      {{/if}}
+    </div>
+    <div id="filetype" class="mt-2">
+      <p><b>Choose the type of file you would like your dataset in:</b></p>
+      <form id="type1">
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="dta" checked> DTA (Stata)</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="csv"> CSV</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="xlsx"> Excel</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="sav"> SAV (SPSS)</label>
+        </div>
+      </form>
+    </div>
+    <div id="cite1" class="mt-2">Cite this dataset using:
+      <br>
+      <div id="cite">
+        <i>{{ref}}</i>
+      </div>
+    </div>
+    <div id="somebuttons" class="text-center">
+      <div id="dbuttons" class="btn-group mt-3 flex-wrap" role="group">
+        <div class="column">
+          <a id="dldata" href="#" download>
+            <button type="button" id="ddata" class="dbutton" onclick="dwn_data()">Download Data</button> 
+         </a>
+        </div>
+        <div class="column">
+          <a id="dlcodebook" href="#" target="_blank" download>
+            <button type="button" id="dcodebook" class="dbutton" onclick="dwn_cb()">Download Codebook</button> 
+          </a>
+        </div>
+        <div class="column">
+          <button type="button" id="ccitation" class="dbutton" onclick="copy_ref('#cite')" data-toggle="modal" data-target="#exampleModal">Copy Reference</button>
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-body">
+                  Reference copied to clipboard.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" id="closingbutton" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="viztool" class="mt-3">
+      <div class="col d-flex justify-content-center">
+        {{#if apps}}
+        <br>
+        <div class="row">
+          {{#each apps}}
+          <!--Closes each for apps-->
+          <div class="vizcard">
+            <div class="card" style="width: 18rem;">
+              <img src="{{appimage}}" class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{appname}}</h5>
+                <p class="card-text">The dataset has this visualization tool, follow the link to interact with the data.</p>
+                <div class="text-center"><a href="{{applink}}" class="btn btn-primary btnapp">Go to app</a></div>
+              </div>
+            </div>
+          </div>
+          {{/each}}
+          <!--Closes each for apps-->
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    <div id="pub1" class="mt-3">
+      {{#if publications}}
+      <br>
+      <p>Related Publications:</p>
+      <ul>
+        {{#each publications}}
+        <li><a class="mylinks" href="{{publink}}">{{pubname}}</a></li>
+        <br> {{/each}}
+        <!-- this closes the each for publications -->
+      </ul>
+      {{/if}}
+    </div>
+    {{/each}}
+    <!-- This closes the overarching each -->
+  </script>
+  <script id="exp" type="text/x-handlebars-template">
+    <br> {{#each exp}}
+    <div id="title">
+      <h3>{{dataname}}</h3>
+    </div>
+    <div id="vers1">
+      Version: <span id="ver1">{{version}}</span>
+    </div>
+    <div id="description">
+      <br> {{{description}}}
+    </div>
+    <div id="moredescription" class="mt-2 float-right">
+      <button class="col-md-12 text-right" id="moreinfo">More about this dataset</button>
+      <div id="moreinfo1" class="hideme" style="display: none;">{{{description_long}}}<br></div>
+      <br>
+    </div>
+    <div id="datatype" class="mt-5">
+      <br>
+      <p><b>Choose the type of dataset you would like to download:</b></p>
+      <form>
+        {{#each types}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+    </div>
+    <div id="versiontype" class="mt-3">
+      {{#if mversions}}
+      <p><b>Choose the version of dataset you would like to download:</b></p>
+      <form>
+        {{#each mversions}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+      {{/if}}
+    </div>
+    <div id="filetype" class="mt-2">
+      <p><b>Choose the type of file you would like your dataset in:</b></p>
+      <form id="type1">
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="dta" checked> DTA (Stata)</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="csv"> CSV</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="xlsx"> Excel</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="sav"> SAV (SPSS)</label>
+        </div>
+      </form>
+    </div>
+    <div id="cite1" class="mt-2">Cite this dataset using:
+      <br>
+      <div id="cite">
+        <i>{{ref}}</i>
+      </div>
+    </div>
+    <div id="somebuttons" class="text-center">
+      <div id="dbuttons" class="btn-group mt-3 flex-wrap" role="group">
+        <div class="column">
+          <a id="dldata" href="#" download>
+            <button type="button" id="ddata" class="dbutton" onclick="dwn_data()">Download Data</button> 
+         </a>
+        </div>
+        <div class="column">
+          <a id="dlcodebook" href="#" target="_blank" download>
+            <button type="button" id="dcodebook" class="dbutton" onclick="dwn_cb()">Download Codebook</button> 
+          </a>
+        </div>
+        <div class="column">
+          <button type="button" id="ccitation" class="dbutton" onclick="copy_ref('#cite')" data-toggle="modal" data-target="#exampleModal">Copy Reference</button>
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-body">
+                  Reference copied to clipboard.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" id="closingbutton" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="viztool" class="mt-3">
+      <div class="col d-flex justify-content-center">
+        {{#if apps}}
+        <br>
+        <div class="row">
+          {{#each apps}}
+          <!--Closes each for apps-->
+          <div class="vizcard">
+            <div class="card" style="width: 18rem;">
+              <img src="{{appimage}}" class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{appname}}</h5>
+                <p class="card-text">The dataset has this visualization tool, follow the link to interact with the data.</p>
+                <div class="text-center"><a href="{{applink}}" class="btn btn-primary btnapp">Go to app</a></div>
+              </div>
+            </div>
+          </div>
+          {{/each}}
+          <!--Closes each for apps-->
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    <div id="pub1" class="mt-3">
+      {{#if publications}}
+      <br>
+      <p>Related Publications:</p>
+      <ul>
+        {{#each publications}}
+        <li><a class="mylinks" href="{{publink}}">{{pubname}}</a></li>
+        <br> {{/each}}
+        <!-- this closes the each for publications -->
+      </ul>
+      {{/if}}
+    </div>
+    {{/each}}
+    <!-- This closes the overarching each -->
+  </script>
+  <script id="qad" type="text/x-handlebars-template">
+    <br> {{#each qad}}
+    <div id="title">
+      <h3>{{dataname}}</h3>
+    </div>
+    <div id="vers1">
+      Version: <span id="ver1">{{version}}</span>
+    </div>
+    <div id="description">
+      <br> {{{description}}}
+    </div>
+    <div id="moredescription" class="mt-2 float-right">
+      <button class="col-md-12 text-right" id="moreinfo">More about this dataset</button>
+      <div id="moreinfo1" class="hideme" style="display: none;">{{{description_long}}}<br></div>
+      <br>
+    </div>
+    <div id="datatype" class="mt-5">
+      <br>
+      <p><b>Choose the type of dataset you would like to download:</b></p>
+      <form>
+        {{#each types}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+    </div>
+    <div id="versiontype" class="mt-3">
+      {{#if mversions}}
+      <p><b>Choose the version of dataset you would like to download:</b></p>
+      <form>
+        {{#each mversions}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+      {{/if}}
+    </div>
+    <div id="filetype" class="mt-2">
+      <p><b>Choose the type of file you would like your dataset in:</b></p>
+      <form id="type1">
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="dta" checked> DTA (Stata)</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="csv"> CSV</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="xlsx"> Excel</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="sav"> SAV (SPSS)</label>
+        </div>
+      </form>
+    </div>
+    <div id="cite1" class="mt-2">Cite this dataset using:
+      <br>
+      <div id="cite">
+        <i>{{ref}}</i>
+      </div>
+    </div>
+    <div id="somebuttons" class="text-center">
+      <div id="dbuttons" class="btn-group mt-3 flex-wrap" role="group">
+        <div class="column">
+          <a id="dldata" href="#" download>
+            <button type="button" id="ddata" class="dbutton" onclick="dwn_data()">Download Data</button> 
+         </a>
+        </div>
+        <div class="column">
+          <a id="dlcodebook" href="#" target="_blank" download>
+            <button type="button" id="dcodebook" class="dbutton" onclick="dwn_cb()">Download Codebook</button> 
+          </a>
+        </div>
+        <div class="column">
+          <button type="button" id="ccitation" class="dbutton" onclick="copy_ref('#cite')" data-toggle="modal" data-target="#exampleModal">Copy Reference</button>
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-body">
+                  Reference copied to clipboard.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" id="closingbutton" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="viztool" class="mt-3">
+      <div class="col d-flex justify-content-center">
+        {{#if apps}}
+        <br>
+        <div class="row">
+          {{#each apps}}
+          <!--Closes each for apps-->
+          <div class="vizcard">
+            <div class="card" style="width: 18rem;">
+              <img src="{{appimage}}" class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{appname}}</h5>
+                <p class="card-text">The dataset has this visualization tool, follow the link to interact with the data.</p>
+                <div class="text-center"><a href="{{applink}}" class="btn btn-primary btnapp">Go to app</a></div>
+              </div>
+            </div>
+          </div>
+          {{/each}}
+          <!--Closes each for apps-->
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    <div id="pub1" class="mt-3">
+      {{#if publications}}
+      <br>
+      <p>Related Publications:</p>
+      <ul>
+        {{#each publications}}
+        <li><a class="mylinks" href="{{publink}}">{{pubname}}</a></li>
+        <br> {{/each}}
+        <!-- this closes the each for publications -->
+      </ul>
+      {{/if}}
+    </div>
+    {{/each}}
+    <!-- This closes the overarching each -->
+  </script>
+  <script id="sqog" type="text/x-handlebars-template">
+    <br> {{#each sqog}}
+    <div id="title">
+      <h3>{{dataname}}</h3>
+    </div>
+    <div id="vers1">
+      Version: <span id="ver1">{{version}}</span>
+    </div>
+    <div id="description">
+      <br> {{{description}}}
+    </div>
+    <div id="moredescription" class="mt-2 float-right">
+      <button class="col-md-12 text-right" id="moreinfo">More about this dataset</button>
+      <div id="moreinfo1" class="hideme" style="display: none;">{{{description_long}}}<br></div>
+      <br>
+    </div>
+    <div id="datatype" class="mt-5">
+      <br>
+      <p><b>Choose the type of dataset you would like to download:</b></p>
+      <form>
+        {{#each types}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+    </div>
+    <div id="versiontype" class="mt-3">
+      {{#if mversions}}
+      <p><b>Choose the version of dataset you would like to download:</b></p>
+      <form>
+        {{#each mversions}}
+        <div class="radio">
+          <label><input type="radio" name="{{classname}}" value="{{value}}" checked> {{tag}}</label>
+        </div>
+        {{/each}}
+      </form>
+      {{/if}}
+    </div>
+    <div id="filetype" class="mt-2">
+      <p><b>Choose the type of file you would like your dataset in:</b></p>
+      <form id="type1">
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="dta" checked> DTA (Stata)</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="csv"> CSV</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="xlsx"> Excel</label>
+        </div>
+        <div class="radio">
+          <label><input type="radio" name="formtype" value="sav"> SAV (SPSS)</label>
+        </div>
+      </form>
+    </div>
+    <div id="cite1" class="mt-2">Cite this dataset using:
+      <br>
+      <div id="cite">
+        <i>{{ref}}</i>
+      </div>
+    </div>
+    <div id="somebuttons" class="text-center">
+      <div id="dbuttons" class="btn-group mt-3 flex-wrap" role="group">
+        <div class="column">
+          <a id="dldata" href="#" download>
+            <button type="button" id="ddata" class="dbutton" onclick="dwn_data()">Download Data</button> 
+         </a>
+        </div>
+        <div class="column">
+          <a id="dlcodebook" href="#" target="_blank" download>
+            <button type="button" id="dcodebook" class="dbutton" onclick="dwn_cb()">Download Codebook</button> 
+          </a>
+        </div>
+        <div class="column">
+          <button type="button" id="ccitation" class="dbutton" onclick="copy_ref('#cite')" data-toggle="modal" data-target="#exampleModal">Copy Reference</button>
+          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-body">
+                  Reference copied to clipboard.
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" id="closingbutton" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="viztool" class="mt-3">
+      <div class="col d-flex justify-content-center">
+        {{#if apps}}
+        <br>
+        <div class="row">
+          {{#each apps}}
+          <!--Closes each for apps-->
+          <div class="vizcard">
+            <div class="card" style="width: 18rem;">
+              <img src="{{appimage}}" class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{appname}}</h5>
+                <p class="card-text">The dataset has this visualization tool, follow the link to interact with the data.</p>
+                <div class="text-center"><a href="{{applink}}" class="btn btn-primary btnapp">Go to app</a></div>
+              </div>
+            </div>
+          </div>
+          {{/each}}
+          <!--Closes each for apps-->
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    <div id="pub1" class="mt-3">
+      {{#if publications}}
+      <br>
+      <p>Related Publications:</p>
+      <ul>
+        {{#each publications}}
+        <li><a class="mylinks" href="{{publink}}">{{pubname}}</a></li>
+        <br> {{/each}}
+        <!-- this closes the each for publications -->
+      </ul>
+      {{/if}}
+    </div>
+    {{/each}}
+    <!-- This closes the overarching each -->
+  </script>
+</div>
+<div class="container">
+  <div class="row">
+    <!-- Left panel starts here -->
+    <div class="col-sm-4 mt-4" id="leftpanel">
+      <button type="button" id="compbutton" class="mainbutton" data-toggle="tooltip" data-placement="right" title="These datasets are an effort to bring QoG-related variables from other sources into one clean and ready to use dataset.">QoG Compilation Data
+          </button>
+      <div class="row1" id="compilation">
+        <button type="button" id="std" class="btn" onclick="hamUpdate('std')">QoG Standard</button>
+        <br>
+        <button type="button" id="bas" class="btn active" onclick="hamUpdate('bas')">QoG Basic</button>
+        <br>
+        <button type="button" id="oecd" class="btn" onclick="hamUpdate('oecd')">QoG OECD</button>
+        <br>
+        <button type="button" id="eureg" class="btn" onclick="hamUpdate('eureg')">QoG EU Regional</button>
+        <br>
+      </div>
+      <!-- Closing compilation div -->
+      <br>
+      <button type="Button" id="orgbutton" class="mainbutton" data-toggle="tooltip" data-placement="right" title="QoG original data are the datasets created in-house.">QoG Original Data</button>
+      <div class="row2" id="original">
+        <button type="button" id="eqi" class="btn" onclick="hamUpdate('eqi')">European Quality of Government Index</button>
+        <br>
+        <button type="button" id="exp" class="btn" onclick="hamUpdate('exp')">QoG Expert Survey</button>
+        <br>
+      </div>
+      <!-- Closing original div -->
+      <br>
+      <button type="button" id="qog_r" class="mainbutton" data-toggle="tooltip" data-placement="right" title="These are original datasets made by the QoG researchers.">QoG Researchers' Data</button>
+      <div class="row3" id="qog_r">
+        <button type="button" id="age" class="btn" onclick="hamUpdate('qad')">QoG Agency Data</button>
+        <br>
+        <button type="button" id="sqog" class="btn" onclick="hamUpdate('sqog')">QoG Swedish Municipalities Data</button>
+        <br>
+      </div>
+      <!-- Closing Qog Researchers Data div -->
+      <br>
+      <div class="row4" id="dataofdata">
+        <button type="button" id="DoD" class="mainbutton">Database of Datasets</button>
+      </div>
+      <!-- Closing Data of Data div -->
+      <div class="row5" id="dataarchive">
+        <button type="button" id="archive" class="mainbutton" onclick="window.location.href='https://qog.pol.gu.se/data/datadownloads/data-archive'" data-toggle="tooltip" data-placement="right" title="Are you looking for an older version of a dataset? Click here.">Data Archive</button>
+      </div>
+      <!-- Closing Data of Data div -->
+    </div>
+    <!-- Closing leftpanel div -->
+    <!-- Right panel div -->
+    <div class="col-sm" id="rightpanel">
+      <div id="info1"></div>
+      <div id="contactme">
+        <p>Do you have any questions or are you experiencing problems with the web page? Please email us at <a href="mailto:infoqog@pol.gu.se?subject=Data portal">infoqog@pol.gu.se</a>.</p>
+      </div>
+    </div>
+    <!-- Closing rightpanel div -->
+  </div>
+  <div>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.2/handlebars.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js'></script>
+<script src='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js'></script>
+<script src="js/index.js"></script>
+
+
+
+
+</body>
+
+</html>
